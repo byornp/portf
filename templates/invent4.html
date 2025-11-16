@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Scalable Image Inventory (External XML)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        :root {
+            /* Size knobs */
+            --thumb-size: 124px;
+            /* change thumbnail size here */
+            --title-size: 10px;
+            /* title font size */
+            --desc-size: 10px;
+            /* description font size */
+            --tag-size: 10px;
+            /* tag font size */
+            --label-size: 13px;
+            /* checkbox label size */
+
+            /* UI theme */
+            --border: #ddd;
+            --muted: #666;
+            --chip-bg: #eef6ff;
+            --chip-fg: #024c7a;
+            --gap: 14px;
+        }
+
+        body {
+            font-family: system-ui, Segoe UI, Roboto, Helvetica, Arial;
+            margin: 20px;
+            background: #fafafa;
+            color: #111;
+        }
+
+        header {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        input,
+        select,
+        button {
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: #fff;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: var(--gap);
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            display: table-row;
+            gap: 10px;
+            align-items: stretch;
+        }
+
+        .card.disabled {
+            opacity: 0.55;
+            background: #f3f3f3;
+        }
+
+        .thumb {
+            width: var(--thumb-size);
+            height: var(--thumb-size);
+            object-fit: scale-down;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: #eee;
+        }
+
+        .meta {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .title {
+            font-size: var(--title-size);
+            font-weight: 600;
+            margin: 4px 0 0; /* small margin above */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .desc {
+            font-size: var(--desc-size);
+            color: #444;
+            margin-bottom: 8px;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            font-size: var(--tag-size);
+            margin-bottom: 8px;
+        }
+
+        .tag {
+            background: var(--chip-bg);
+            color: var(--chip-fg);
+            padding: 4px 7px;
+            border-radius: 999px;
+        }
+
+        .retrieved-label {
+            font-size: var(--label-size);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .count {
+            margin-left: auto;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .no-results {
+            text-align: center;
+            color: var(--muted);
+            padding: 24px;
+        }
+
+        .link {
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column; /* stack children vertically */
+            align-items: flex-start; /* align text to left under thumbnail */
+            gap: 6px; /* space between thumbnail and title */
+        }
+
+        .link:hover .title {
+            text-decoration: underline;
+        }
+
+        .sentinel {
+            height: 1px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h3>Image inventory</h3>
+        <input id="search" type="search" placeholder="Search tags, filename, or description"
+            aria-label="Search inventory" />
+        <select id="sort" aria-label="Sort items">
+            <option value="filename">Sort: filename</option>
+            <option value="date">Sort: date (newest first)</option>
+            <option value="tagcount">Sort: tag count</option>
+        </select>
+        <button id="clear" type="button">Clear</button>
+        <button id="export" type="button">Export XML</button>
+        <div class="count" id="result-count" aria-live="polite">Loading…</div>
+    </header>
+
+    <main>
+        <div id="list" class="list" role="list"></div>
+        <div id="no-results" class="no-results" hidden>No items match your search.</div>
+        <div id="sentinel" class="sentinel"></div>
+    </main>
+
+    <script>
+        // ---------- Configuration ----------
+        const XML_URL = './Inventory_converted_2.xml'; // <-- replace with your external XML path
+
+        // ---------- Utilities ----------
+        function debounce(fn, delay = 200) {
+            let t;
+            return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
+        }
+
+        function safeParseXML(text) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(text, 'application/xml');
+            return doc.querySelector('parsererror') ? null : doc;
+        }
+
+        function openZoomWindow(item) {
+            const win = window.open('', '_blank');
+            if (!win) return;
+            const safeTitle = (item.name || 'Image').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const safeSrc = (item.src || '').replace(/"/g, '&quot;');
+            win.document.write(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>${safeTitle}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    html, body { height: 100%; }
+    body { margin: 0; background: #111; display: grid; place-items: center; }
+    img { max-width: 100%; max-height: 100vh; transition: transform 0.25s ease; cursor: zoom-in; }
+    img:hover { transform: scale(1.5); cursor: zoom-out; }
+    .hint { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); color: #bbb; font: 12px/1.4 system-ui, sans-serif; }
+  </style>
+</head>
+<body>
+  <img src="${safeSrc}" alt="${safeTitle}">
+  <div class="hint">Tip: Use browser zoom or hover to magnify.</div>
+</body>
+</html>`);
+            win.document.close();
+        }
+
+        // ---------- DOM refs ----------
+        const listEl = document.getElementById('list');
+        const sentinelEl = document.getElementById('sentinel');
+        const noResults = document.getElementById('no-results');
+        const resultCount = document.getElementById('result-count');
+        const searchInput = document.getElementById('search');
+        const sortSelect = document.getElementById('sort');
+        const clearBtn = document.getElementById('clear');
+        const exportBtn = document.getElementById('export');
+
+        // ---------- App state ----------
+        let xmlDoc = null;
+        let items = [];
+        let filtered = [];
+        let chunkStart = 0;
+        const CHUNK_SIZE = 100; // adjust per device/data size
+        const serializer = new XMLSerializer();
+
+        // ---------- Build a card ----------
+        function makeCard(item) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.setAttribute('role', 'listitem');
+            if (item.retrieved) card.classList.add('disabled');
+
+            const link = document.createElement('a');
+            link.href = '#';
+            link.className = 'link';
+            link.addEventListener('click', (e) => { e.preventDefault(); openZoomWindow(item); }, { passive: true });
+
+            const img = document.createElement('img');
+            img.className = 'thumb';
+            img.alt = item.name ? `${item.name} thumbnail` : 'Image thumbnail';
+            img.src = item.src;
+            img.loading = 'lazy';
+            img.onerror = () => { img.style.background = '#ddd'; img.alt = 'Image not found'; };
+
+            const title = document.createElement('div');
+            title.className = 'title';
+            title.textContent = item.name || '(unnamed)';
+
+            link.appendChild(img);
+            link.appendChild(title);
+
+            const meta = document.createElement('div');
+            meta.className = 'meta';
+
+            const desc = document.createElement('div');
+            desc.className = 'desc';
+            desc.textContent = item.description;
+
+            const tagsBox = document.createElement('div');
+            tagsBox.className = 'tags';
+            item.tags.forEach(t => {
+                const span = document.createElement('span');
+                span.className = 'tag';
+                span.textContent = t;
+                tagsBox.appendChild(span);
+            });
+
+            const label = document.createElement('label');
+            label.className = 'retrieved-label';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = !!item.retrieved;
+            checkbox.setAttribute('aria-label', 'Mark item retrieved');
+
+            const statusText = document.createElement('span');
+            statusText.textContent = item.retrieved ? 'Retrieved' : 'Mark retrieved';
+
+            checkbox.addEventListener('change', () => {
+                item.retrieved = checkbox.checked;
+                item.el.setAttribute('retrieved', item.retrieved ? 'true' : 'false'); // persist to XML
+                card.classList.toggle('disabled', item.retrieved);
+                statusText.textContent = item.retrieved ? 'Retrieved' : 'Mark retrieved';
+                updateCount();
+            });
+
+            label.appendChild(checkbox);
+            label.appendChild(statusText);
+
+            meta.appendChild(desc);
+            meta.appendChild(tagsBox);
+            meta.appendChild(label);
+
+            card.appendChild(link);
+            card.appendChild(meta);
+            return card;
+        }
+
+        // ---------- Rendering (chunked) ----------
+        function clearList() {
+            listEl.innerHTML = '';
+            chunkStart = 0;
+        }
+
+        function renderNextChunk() {
+            if (chunkStart >= filtered.length) return;
+            const fragment = document.createDocumentFragment();
+            const end = Math.min(chunkStart + CHUNK_SIZE, filtered.length);
+            for (let i = chunkStart; i < end; i++) {
+                fragment.appendChild(makeCard(filtered[i]));
+            }
+            listEl.appendChild(fragment);
+            chunkStart = end;
+            updateCount();
+        }
+
+        function resetAndRender() {
+            clearList();
+            noResults.hidden = filtered.length > 0;
+            if (filtered.length === 0) {
+                updateCount();
+                return;
+            }
+            renderNextChunk();
+        }
+
+        const io = new IntersectionObserver((entries) => {
+            for (const entry of entries) {
+                if (entry.isIntersecting) requestAnimationFrame(renderNextChunk);
+            }
+        }, { root: null, rootMargin: '100px', threshold: 0 });
+        io.observe(sentinelEl);
+
+        // ---------- Filters + sort ----------
+        function updateCount() {
+            const total = items.length;
+            const rendered = Math.min(chunkStart, filtered.length);
+            const retrieved = items.filter(i => i.retrieved).length;
+            resultCount.textContent = `${rendered} / ${total} rendered — ${retrieved} retrieved`;
+        }
+
+        function applySort() {
+            const key = sortSelect.value;
+            filtered.sort((a, b) => {
+                if (key === 'filename') return (a.name || '').localeCompare(b.name || '');
+                if (key === 'date') return (b.added || '').localeCompare(a.added || ''); // newest first
+                if (key === 'tagcount') return (b.tags?.length || 0) - (a.tags?.length || 0);
+                return 0;
+            });
+        }
+
+        const applyFiltersDebounced = debounce(() => {
+            const q = (searchInput.value || '').trim().toLowerCase();
+            filtered = !q ? items : items.filter(it => {
+                const inName = (it.name || '').toLowerCase().includes(q);
+                const inDesc = (it.description || '').toLowerCase().includes(q);
+                const inTags = (it.tags || []).some(t => t.toLowerCase().includes(q));
+                return inName || inDesc || inTags;
+            });
+            applySort();
+            resetAndRender();
+        }, 200);
+
+        // ---------- Export current XML ----------
+        function exportXML() {
+            const xmlString = serializer.serializeToString(xmlDoc);
+            const blob = new Blob([xmlString], { type: 'application/xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'inventory.xml';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // ---------- Wire events ----------
+        searchInput.addEventListener('input', applyFiltersDebounced, { passive: true });
+        sortSelect.addEventListener('change', () => { applySort(); resetAndRender(); }, { passive: true });
+        clearBtn.addEventListener('click', () => { searchInput.value = ''; applyFiltersDebounced(); });
+        exportBtn.addEventListener('click', exportXML);
+
+        // ---------- Load external XML ----------
+        (async function init() {
+            try {
+                const res = await fetch(XML_URL, { cache: 'no-store' });
+                if (!res.ok) throw new Error(`Failed to fetch XML (${res.status})`);
+                const text = await res.text();
+                xmlDoc = safeParseXML(text);
+                if (!xmlDoc) throw new Error('XML parse error');
+
+                items = Array.from(xmlDoc.querySelectorAll('inventory > item')).map(itemEl => {
+                    const fileEl = itemEl.querySelector('file');
+                    return {
+                        id: itemEl.getAttribute('id') || Math.random().toString(36).slice(2),
+                        name: fileEl?.getAttribute('name') || '',
+                        src: fileEl?.getAttribute('src') || '',
+                        added: fileEl?.getAttribute('added') || '',
+                        description: fileEl?.querySelector('description')?.textContent?.trim() || '',
+                        tags: Array.from(fileEl?.querySelectorAll('tags > tag') || []).map(t => t.textContent.trim()),
+                        retrieved: itemEl.getAttribute('retrieved') === 'true',
+                        el: itemEl
+                    };
+                });
+
+                filtered = items.slice();
+                applySort();
+                resetAndRender();
+            } catch (err) {
+                console.error(err);
+                listEl.innerHTML = '<div class="no-results">Failed to load external XML. Check XML_URL and CORS.</div>';
+                resultCount.textContent = '0 items';
+            }
+        })();
+    </script>
+</body>
+
+</html>

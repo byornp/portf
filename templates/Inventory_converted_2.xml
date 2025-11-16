@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<inventory>
+  <!--Generated from Excel by script; items correspond to spreadsheet rows-->
+  <item id="itm-001" retrieved="false">
+    <file name="IMG_4742.jpg" src="./static/assets/clutter/14Nov2025/IMG_4742.jpg" added="2025-11-14">
+      <tags>
+        <tag>black</tag>
+        <tag>bra</tag>
+      </tags>
+      <description>black brassiere</description>
+    </file>
+  </item>
+  <item id="itm-002" retrieved="false">
+    <file name="IMG_4743.jpg" src="./static/assets/clutter/14Nov2025/IMG_4743.jpg" added="2025-11-14">
+      <tags>
+        <tag>brown</tag>
+        <tag>grament</tag>
+        <tag>top</tag>
+      </tags>
+      <description>Targus black backpack</description>
+    </file>
+  </item>
+  <item id="itm-003" retrieved="false">
+    <file name="IMG_4744.jpg" src="./static/assets/clutter/14Nov2025/IMG_4744.jpg" added="2025-11-14">
+      <tags>
+        <tag>black</tag>
+        <tag>garment</tag>
+        <tag>knitted</tag>
+        <tag>cardigan</tag>
+      </tags>
+      <description>black knitted cardigan</description>
+    </file>
+  </item>
+  <item id="itm-004" retrieved="false">
+    <file name="IMG_4745.jpg" src="./static/assets/clutter/14Nov2025/IMG_4745.jpg" added="2025-11-14">
+      <tags>
+        <tag>tan</tag>
+        <tag>garment</tag>
+        <tag>top</tag>
+      </tags>
+      <description>tan blouse</description>
+    </file>
+  </item>
+  <item id="itm-005" retrieved="false">
+    <file name="IMG_4746.jpg" src="./static/assets/clutter/14Nov2025/IMG_4746.jpg" added="2025-11-14">
+      <tags>
+        <tag>black</tag>
+        <tag>garment</tag>
+        <tag>geometric print</tag>
+        <tag>daster</tag>
+      </tags>
+      <description>black daster</description>
+    </file>
+  </item>
+  <item id="itm-006" retrieved="false">
+    <file name="IMG_4747.jpg" src="./static/assets/clutter/14Nov2025/IMG_4747.jpg" added="2025-11-14">
+      <tags>
+        <tag>black</tag>
+        <tag>garment</tag>
+        <tag>sleeveless</tag>
+        <tag>tank top</tag>
+      </tags>
+      <description>black embroidered top top</description>
+    </file>
+  </item>
+  <item id="itm-007" retrieved="false">
+    <file name="IMG_4748.jpg" src="./static/assets/clutter/14Nov2025/IMG_4748.jpg" added="2025-11-14">
+      <tags>
+        <tag>maroon</tag>
+        <tag>garment</tag>
+        <tag>tank top</tag>
+      </tags>
+      <description>maroon, tanktop</description>
+    </file>
+  </item>
+  <item id="itm-008" retrieved="false">
+    <file name="IMG_4749.jpg" src="./static/assets/clutter/14Nov2025/IMG_4749.jpg" added="2025-11-14">
+      <tags>
+        <tag>multi-color</tag>
+        <tag>garment</tag>
+        <tag>floral</tag>
+        <tag>top</tag>
+      </tags>
+      <description>multi-color floral blouse</description>
+    </file>
+  </item>
+  <item id="itm-009" retrieved="false">
+    <file name="IMG_4750.jpg" src="./static/assets/clutter/14Nov2025/IMG_4750.jpg" added="2025-11-14">
+      <tags>
+        <tag>black</tag>
+        <tag>garment</tag>
+        <tag>tank top</tag>
+        <tag>scarves</tag>
+      </tags>
+      <description>black tank top x2 and scarves</description>
+    </file>
+  </item>
+  <item id="itm-010" retrieved="false">
+    <file name="IMG_4751.jpg" src="./static/assets/clutter/14Nov2025/IMG_4751.jpg" added="2025-11-14">
+      <tags>
+        <tag>black</tag>
+        <tag>brown</tag>
+        <tag>tank top</tag>
+        <tag>yoga shorts</tag>
+      </tags>
+      <description>black tank tops, brown yoga shorts, black japanese blouse</description>
+    </file>
+  </item>
+  <item id="itm-011" retrieved="false">
+    <file name="IMG_4752.jpg" src="./static/assets/clutter/14Nov2025/IMG_4752.jpg" added="2025-11-14">
+      <tags>
+        <tag>black</tag>
+        <tag>red</tag>
+        <tag>garment</tag>
+        <tag>shirts</tag>
+      </tags>
+      <description>black sando, red shirts (HK)</description>
+    </file>
+  </item>
+  <item id="itm-012" retrieved="false">
+    <file name="IMG_4753.jpg" src="./static/assets/clutter/14Nov2025/IMG_4753.jpg" added="2025-11-14">
+      <tags>
+        <tag>multi color</tag>
+        <tag>stripe</tag>
+        <tag>tartan</tag>
+        <tag>garment</tag>
+        <tag>top</tag>
+      </tags>
+      <description>various striped, check tops</description>
+    </file>
+  </item>
+  <item id="itm-013" retrieved="false">
+    <file name="IMG_4754.jpg" src="./static/assets/clutter/14Nov2025/IMG_4754.jpg" added="2025-11-14">
+      <tags>
+        <tag>black</tag>
+        <tag>blue</tag>
+        <tag>garment</tag>
+        <tag>shorts</tag>
+      </tags>
+      <description>black/blue shorts</description>
+    </file>
+  </item>
+  <item id="itm-014" retrieved="false">
+    <file name="IMG_4755.jpg" src="./static/assets/clutter/14Nov2025/IMG_4755.jpg" added="2025-11-14">
+      <tags>
+        <tag>multi color</tag>
+        <tag>socks</tag>
+        <tag>undies</tag>
+      </tags>
+      <description>sockes and undies</description>
+    </file>
+  </item>
+  <item id="itm-015" retrieved="false">
+    <file name="IMG_4756.jpg" src="./static/assets/clutter/14Nov2025/IMG_4756.jpg" added="2025-11-14">
+      <tags>
+        <tag>multi color</tag>
+        <tag>head</tag>
+        <tag>hair</tag>
+        <tag>accessories</tag>
+      </tags>
+      <description>head/hair accessories</description>
+    </file>
+  </item>
+  <item id="itm-016" retrieved="false">
+    <file name="IMG_4757.jpg" src="./static/assets/clutter/14Nov2025/IMG_4757.jpg" added="2025-11-14">
+      <tags>
+        <tag>orange</tag>
+        <tag>tan</tag>
+        <tag>bags</tag>
+        <tag>costco</tag>
+      </tags>
+      <description>costo bags</description>
+    </file>
+  </item>
+</inventory>
